@@ -1,0 +1,25 @@
+[project]
+name = "retailcv"
+version = "0.1.0"
+description = "Experimentos do TCC: visão computacional tradicional vs MLLM zero-shot para métricas comportamentais de varejo"
+requires-python = ">=3.12"
+dependencies = [
+    "ultralytics==8.4.106",
+    "boxmot==22.0.0",
+    "supervision==0.29.1",
+    "pydantic>=2.7",
+    "shapely>=2.0",
+    "pandas>=2.2",
+    "anthropic>=0.120.0",
+    "openai>=2.48.0",
+    "boto3>=1.43",
+    "aws-bedrock-token-generator>=1.0",
+    "pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
