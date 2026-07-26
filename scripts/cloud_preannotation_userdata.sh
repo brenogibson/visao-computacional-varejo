@@ -8,6 +8,8 @@ exec > /var/log/tcc-preanno.log 2>&1
 BUCKET=video-analytics-store
 REGION=us-east-1
 echo "=== TCC pre-annotation job: $(date -u) ==="
+# A DLAMI Base NÃO traz ffmpeg/zip — instalar sempre (falha de 26/07 documentada no DIARIO)
+apt-get update -q && apt-get install -y -q ffmpeg zip
 nvidia-smi -L
 
 WORK=/opt/tcc && mkdir -p $WORK && cd $WORK
