@@ -53,7 +53,8 @@ while True:
     if (fi - 1) % KEYSTEP:
         continue
     for x1, y1, x2, y2, tid, conf, cls, _ in tracks:
-        lines.append(f"{fi},{int(tid)},{x1:.1f},{y1:.1f},{x2-x1:.1f},{y2-y1:.1f},1,1,1.0")
+        # track_id 1-based: o importador MOT do CVAT trata id=0 como "sem track" (bug visto em 26/07)
+        lines.append(f"{fi},{int(tid) + 1},{x1:.1f},{y1:.1f},{x2-x1:.1f},{y2-y1:.1f},1,1,1.0")
 cap.release()
 open("gt.txt", "w").write("\n".join(lines) + "\n")
 wall = time.time() - t0
