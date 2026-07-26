@@ -1,0 +1,137 @@
+{
+ "video": "WJCI3607077HN_2_1777752446477.mp4.mp4",
+ "video_role": "escalabilidade",
+ "layout_date": "2026-04-29",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "anchor": "bottom_center",
+ "comment": "Mesma cena/layout do video principal (verificado por frame em 26/07/2026) - zonas identicas ao main.json.",
+ "priority_order": [
+  "mesa_central",
+  "entrada",
+  "corredor_esquerdo",
+  "corredor_central",
+  "corredor_direito",
+  "caixa"
+ ],
+ "zones": {
+  "mesa_central": [
+   [
+    950,
+    455
+   ],
+   [
+    1230,
+    420
+   ],
+   [
+    1440,
+    650
+   ],
+   [
+    1450,
+    920
+   ],
+   [
+    1270,
+    1080
+   ],
+   [
+    1000,
+    1080
+   ],
+   [
+    940,
+    700
+   ]
+  ],
+  "entrada": [
+   [
+    880,
+    0
+   ],
+   [
+    1320,
+    0
+   ],
+   [
+    1300,
+    135
+   ],
+   [
+    905,
+    135
+   ]
+  ],
+  "corredor_esquerdo": [
+   [
+    795,
+    75
+   ],
+   [
+    905,
+    62
+   ],
+   [
+    1080,
+    1080
+   ],
+   [
+    560,
+    1080
+   ]
+  ],
+  "corredor_central": [
+   [
+    1035,
+    0
+   ],
+   [
+    1165,
+    0
+   ],
+   [
+    1810,
+    1080
+   ],
+   [
+    1440,
+    1080
+   ]
+  ],
+  "corredor_direito": [
+   [
+    1320,
+    0
+   ],
+   [
+    1395,
+    0
+   ],
+   [
+    1920,
+    540
+   ],
+   [
+    1920,
+    735
+   ]
+  ],
+  "caixa": [
+   [
+    1395,
+    0
+   ],
+   [
+    1920,
+    0
+   ],
+   [
+    1920,
+    540
+   ]
+  ]
+ }
+}

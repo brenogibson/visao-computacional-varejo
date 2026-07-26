@@ -1,0 +1,17 @@
+{
+  "video": "blurredvideo.mp4",
+  "video_role": "referencia",
+  "layout_date": "2024-10-19",
+  "resolution": [1920, 1080],
+  "anchor": "bottom_center",
+  "comment": "Zonas aprovadas pelo autor em 26/07/2026 (v4). Atribuicao pela primeira zona em priority_order que contem o ponto-pe. Pontos fora de todas as zonas = 'fora_de_zona' (canto inferior direito e' area de exposicao, sem circulacao).",
+  "priority_order": ["mesa_central", "entrada", "corredor_esquerdo", "corredor_central", "corredor_direito", "caixa"],
+  "zones": {
+    "mesa_central":      [[1035, 405], [1300, 375], [1480, 795], [1125, 855]],
+    "entrada":           [[958, 0], [1360, 0], [1345, 130], [975, 130]],
+    "corredor_esquerdo": [[848, 72], [958, 60], [1135, 1080], [645, 1080]],
+    "corredor_central":  [[1065, 0], [1190, 0], [1835, 1080], [1470, 1080]],
+    "corredor_direito":  [[1360, 0], [1428, 0], [1920, 555], [1920, 745]],
+    "caixa":             [[1428, 0], [1920, 0], [1920, 555]]
+  }
+}
