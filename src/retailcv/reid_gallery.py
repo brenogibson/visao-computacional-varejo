@@ -19,9 +19,10 @@ def extract_track_embeddings(video: str, tracks: dict[int, Track],
                              samples_per_track: int = 5, device: str = "cuda:0") -> dict[int, np.ndarray]:
     """Embedding médio de N crops amostrados uniformemente ao longo de cada trajetória."""
     import cv2
-    from boxmot import ReIDModel
+    # boxmot v22: runtime unificado de ReID (o antigo ReIDModel/appearance não existe mais)
+    from boxmot.reid.core.reid import ReID
 
-    model = ReIDModel.from_pretrained(reid_weights, device=device)
+    model = ReID(weights=reid_weights, device=device, half=True)
 
     # agenda: frame -> [(tid, box)]
     want: dict[int, list] = {}
@@ -39,14 +40,18 @@ def extract_track_embeddings(video: str, tracks: dict[int, Track],
         if not ok:
             break
         fi += 1  # MOT 1-based
+        boxes, tids = [], []
         for tid, (x, y, w, h, _) in want.get(fi, []):
             x1, y1 = max(int(x), 0), max(int(y), 0)
             x2, y2 = min(int(x + w), frame.shape[1]), min(int(y + h), frame.shape[0])
             if x2 - x1 < 8 or y2 - y1 < 16:
                 continue
-            crop = frame[y1:y2, x1:x2]
-            emb = model.get_features(np.array([[0, 0, crop.shape[1], crop.shape[0]]]), crop)
-            feats[tid].append(np.asarray(emb).ravel())
+            boxes.append([x1, y1, x2, y2])
+            tids.append(tid)
+        if boxes:
+            embs_batch = model(frame, boxes=np.asarray(boxes, dtype=np.float32))
+            for tid, e in zip(tids, np.asarray(embs_batch)):
+                feats[tid].append(np.asarray(e).ravel())
     cap.release()
 
     out = {}
