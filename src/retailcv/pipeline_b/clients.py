@@ -17,8 +17,10 @@ MANTLE = "https://bedrock-mantle.us-east-1.api.aws"
 
 
 def _validate(d: dict) -> dict:
-    assert isinstance(d.get("people_count"), int)
-    assert isinstance(d.get("people"), list)
+    if not isinstance(d.get("people_count"), int) or not isinstance(d.get("people"), list):
+        raise ValueError(f"schema violado: keys={list(d)[:6]} "
+                         f"people_count={type(d.get('people_count')).__name__} "
+                         f"people={type(d.get('people')).__name__} raw={str(d)[:150]}")
     return d
 
 
@@ -90,4 +92,31 @@ class OpenAICompatClient:
 def make_client(model_id: str, prompt: str):
     if model_id.startswith("anthropic."):
         return ClaudeClient(model_id, prompt)
+    if model_id.startswith("local/"):
+        return VLLMLocalClient(model_id.removeprefix("local/"), prompt)
     return OpenAICompatClient(model_id, prompt)
+
+
+class VLLMLocalClient:
+    """Qwen3-VL self-hosted via vLLM (OpenAI-compatible, chat.completions + json_schema)."""
+
+    def __init__(self, model_id: str, prompt: str, base_url: str = "http://localhost:8000/v1"):
+        from openai import OpenAI
+        self.client = OpenAI(base_url=base_url, api_key="local")
+        self.model_id, self.prompt = model_id, prompt
+
+    def analyze_frame(self, jpeg: bytes):
+        t0 = time.time()
+        resp = self.client.chat.completions.create(
+            model=self.model_id, max_tokens=2048, temperature=0,
+            messages=[{"role": "user", "content": [
+                {"type": "image_url", "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64.standard_b64encode(jpeg).decode()}"}},
+                {"type": "text", "text": self.prompt},
+            ]}],
+            response_format={"type": "json_schema",
+                             "json_schema": {"name": "registrar_frame", "schema": FRAME_SCHEMA}})
+        out = _validate(json.loads(resp.choices[0].message.content))
+        u = resp.usage
+        usage = {"input_tokens": u.prompt_tokens, "output_tokens": u.completion_tokens}
+        return out, usage, time.time() - t0
