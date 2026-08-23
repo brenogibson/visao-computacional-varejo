@@ -9,7 +9,8 @@ exec > /var/log/tcc-b1.log 2>&1
 BUCKET=video-analytics-store
 REGION=us-east-1
 echo "=== TCC B1 job: $(date -u) ==="
-apt-get update -q && apt-get install -y -q ffmpeg zip python3-venv python3-pip
+apt-get update -q && apt-get install -y -q ffmpeg zip python3-venv python3-pip unzip curl
+command -v aws >/dev/null || { curl -sS https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscli.zip && unzip -q /tmp/awscli.zip -d /tmp && /tmp/aws/install; }
 
 WORK=/opt/tcc && mkdir -p $WORK && cd $WORK
 python3 -m venv venv
