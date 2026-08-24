@@ -9,13 +9,13 @@ BUCKET=video-analytics-store
 REGION=us-east-1
 MODEL="Qwen/Qwen3-VL-8B-Instruct-FP8"
 echo "=== TCC Qwen job: $(date -u) ==="
-apt-get update -q && apt-get install -y -q ffmpeg zip
+apt-get update -q && apt-get install -y -q ffmpeg zip build-essential ninja-build
 nvidia-smi -L
 
 WORK=/opt/tcc && mkdir -p $WORK && cd $WORK
 python3 -m venv venv
 ./venv/bin/pip install -q --upgrade pip
-./venv/bin/pip install -q vllm openai boto3 aws-bedrock-token-generator anthropic
+./venv/bin/pip install -q vllm openai boto3 aws-bedrock-token-generator anthropic ninja
 
 aws s3 cp s3://$BUCKET/videos/derived/ref_5fps.mp4 ref_5fps.mp4 --region $REGION --only-show-errors
 aws s3 cp s3://$BUCKET/videos/derived/main_5fps.mp4 main_5fps.mp4 --region $REGION --only-show-errors
@@ -26,10 +26,18 @@ tar xzf src.tar.gz
 SETUP_T0=$(date +%s)
 ./venv/bin/vllm serve "$MODEL" --max-model-len 8192 --limit-mm-per-prompt '{"image": 1}' \
   --gpu-memory-utilization 0.92 > /var/log/vllm.log 2>&1 &
+SERVER_UP=0
 for i in $(seq 1 120); do
-  curl -s -o /dev/null http://localhost:8000/v1/models && break
+  curl -sf -o /dev/null http://localhost:8000/v1/models && SERVER_UP=1 && break
   sleep 15
 done
+if [ "$SERVER_UP" != "1" ]; then
+  echo "FATAL: vLLM não subiu — abortando antes do runner"
+  aws s3 cp /var/log/vllm.log s3://$BUCKET/runs/qwen/vllm_log_fail.txt --region $REGION --only-show-errors || true
+  aws s3 cp /var/log/tcc-qwen.log s3://$BUCKET/runs/qwen/job_log_fail.txt --region $REGION --only-show-errors || true
+  shutdown -h now
+  exit 1
+fi
 SETUP_WALL=$(( $(date +%s) - SETUP_T0 ))
 echo "vllm pronto em ${SETUP_WALL}s"
 
