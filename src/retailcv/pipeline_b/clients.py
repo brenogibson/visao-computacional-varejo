@@ -53,9 +53,10 @@ class ClaudeClient:
 
 
 class OpenAICompatClient:
-    """GPT-5.x e Gemma 4 via Responses API do mantle (bearer token SigV4)."""
+    """GPT-5.x/Gemma 4 (mantle) e Grok 4.6 (bedrock-runtime) via Responses API OpenAI-compat."""
 
-    def __init__(self, model_id: str, prompt: str, region: str = "us-east-1"):
+    def __init__(self, model_id: str, prompt: str, region: str = "us-east-1",
+                 base_url: str | None = None):
         import boto3
         from aws_bedrock_token_generator import BedrockTokenGenerator
         from openai import OpenAI
@@ -63,7 +64,7 @@ class OpenAICompatClient:
         self._token_gen = BedrockTokenGenerator()
         self._session, self._region = session, region
         token = self._token_gen.get_token(session.get_credentials(), region)
-        self.client = OpenAI(base_url=f"{MANTLE}/openai/v1", api_key=token)
+        self.client = OpenAI(base_url=base_url or f"{MANTLE}/openai/v1", api_key=token)
         self.model_id, self.prompt = model_id, prompt
 
     def refresh_token(self):
@@ -89,11 +90,16 @@ class OpenAICompatClient:
         return out, usage, time.time() - t0
 
 
+RUNTIME_OPENAI = "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1"
+
+
 def make_client(model_id: str, prompt: str):
     if model_id.startswith("anthropic."):
         return ClaudeClient(model_id, prompt)
     if model_id.startswith("local/"):
         return VLLMLocalClient(model_id.removeprefix("local/"), prompt)
+    if "xai." in model_id:  # Grok: mantle in-region só em us-west-2; usar runtime CRIS
+        return OpenAICompatClient(model_id, prompt, base_url=RUNTIME_OPENAI)
     return OpenAICompatClient(model_id, prompt)
 
 
