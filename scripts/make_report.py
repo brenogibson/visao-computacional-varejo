@@ -176,6 +176,16 @@ def main() -> None:
           "| dependências de runtime | torch, ultralytics, boxmot, TrackEval (numpy<1.24!) | 2 SDKs HTTP | vllm + torch + GPU |",
           "| hardware dedicado | GPU | nenhum | GPU |", ""]
 
+    sv = D / "sampling_validation_main.json"
+    if sv.exists():
+        rows = json.load(open(sv))
+        L += ["## 6. Validação por amostragem — vídeo principal (150 contagens do autor, seed 42, critério inclusivo v2)", "",
+              "| abordagem | MAE | viés | IC95% do MAE |", "|---|---|---|---|"]
+        for r in sorted(rows, key=lambda r: r["mae"]):
+            L.append(f"| {r['approach']} | {r['mae']:.3f} | {r['bias']:+.3f} | [{r['ci95'][0]:.3f}, {r['ci95'][1]:.3f}] |")
+        L += ["", "_Sensibilidade à definição (v1 estrito × v2 inclusivo): 96/150 instantes mudaram (+143 pessoas parciais, +41%); "
+              "o ranking muda substancialmente entre critérios — ver DECISOES.md D16._", ""]
+
     out = ROOT / "docs" / "RESULTADOS_PRELIMINARES.md"
     out.write_text("\n".join(L), encoding="utf-8")
     Path("/mnt/c/Users/breno/TCC2/RESULTADOS_PRELIMINARES.md").write_text("\n".join(L), encoding="utf-8")

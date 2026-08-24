@@ -61,3 +61,23 @@ _Extrapolação: 12h de operação/dia × 30 dias = 360h de vídeo/mês por loja
 | falhas de schema/modelo | — | 91 frames (só Sonnet 5; limitação documentada) | 0 |
 | dependências de runtime | torch, ultralytics, boxmot, TrackEval (numpy<1.24!) | 2 SDKs HTTP | vllm + torch + GPU |
 | hardware dedicado | GPU | nenhum | GPU |
+
+## 6. Validação por amostragem — vídeo principal (150 contagens do autor, seed 42, critério inclusivo v2)
+
+| abordagem | MAE | viés | IC95% do MAE |
+|---|---|---|---|
+| B: Grok 4.6 | 0.487 | -0.087 | [0.387, 0.587] |
+| B: Qwen3-VL-8B self-hosted | 0.500 | -0.020 | [0.400, 0.600] |
+| B: GPT-5.6 Luna | 0.620 | -0.420 | [0.513, 0.733] |
+| B: Claude Sonnet 5 | 0.655 | -0.338 | [0.532, 0.784] |
+| B: Claude Opus 5 | 0.667 | -0.200 | [0.553, 0.787] |
+| B: GPT-5.6 Terra | 0.707 | -0.320 | [0.600, 0.820] |
+| A: bytetrack (E0) | 0.800 | -0.280 | [0.687, 0.920] |
+| A: bytetrack +heurísticas (P4) | 0.800 | -0.213 | [0.687, 0.920] |
+| A: hybridsort (E0) | 0.833 | -0.180 | [0.720, 0.947] |
+| B: Claude Haiku 4.5 | 0.860 | -0.167 | [0.733, 0.987] |
+| B: Gemma 4 31B | 0.873 | -0.633 | [0.747, 1.000] |
+| B: Gemma 4 26B-A4B | 0.900 | -0.020 | [0.773, 1.027] |
+| B3: Pegasus vídeo-nativo (n=150, tol. 5s) | 1.200 | -1.000 | [1.033, 1.373] |
+
+_Sensibilidade à definição (v1 estrito × v2 inclusivo): 96/150 instantes mudaram (+143 pessoas parciais, +41%); o ranking muda substancialmente entre critérios — ver DECISOES.md D16._
