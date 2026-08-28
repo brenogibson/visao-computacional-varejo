@@ -79,4 +79,6 @@ def run_model(video: str, video_key: str, model_id: str, fps: float,
         "retries_used": sum(r.get("attempts", 1) - 1 for r in oks),
     }
     json.dump(summary, open(out_dir / "run_summary.json", "w"), indent=1)
+    import shutil
+    shutil.rmtree(out_dir / "frames_tmp", ignore_errors=True)  # não subir JPGs nos zips
     return summary

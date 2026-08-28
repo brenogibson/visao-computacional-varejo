@@ -72,6 +72,9 @@ ZONE_TEXT = {
 }
 
 
+ZONE_TEXT["scale"] = ZONE_TEXT["main"]  # mesma cena/layout (D12; verificado por frame em 26/07)
+
+
 def build_prompt(video_key: str) -> str:
     return (
         "Você é um sistema de análise de vídeo de varejo. Analise este frame de câmera de "
