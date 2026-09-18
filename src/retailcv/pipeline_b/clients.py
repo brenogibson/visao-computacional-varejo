@@ -98,7 +98,9 @@ def make_client(model_id: str, prompt: str):
         return ClaudeClient(model_id, prompt)
     if model_id.startswith("local/"):
         return VLLMLocalClient(model_id.removeprefix("local/"), prompt)
-    if "xai." in model_id:  # Grok: mantle in-region só em us-west-2; usar runtime CRIS
+    if "xai." in model_id or model_id.startswith(("us.", "global.")):
+        # Grok (mantle in-region só em us-west-2) e modelos que exigem perfil CRIS
+        # (ex.: us.openai.gpt-6-astra — sem on-demand direto): usar bedrock-runtime
         return OpenAICompatClient(model_id, prompt, base_url=RUNTIME_OPENAI)
     return OpenAICompatClient(model_id, prompt)
 
