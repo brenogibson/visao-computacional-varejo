@@ -25,6 +25,8 @@ _Gerado automaticamente; preços de 23/08/2026 (endpoint regional us-east-1). Ac
 | GPT-5.6 Terra | 0.895 | +0.495 | 45% | 0 |
 | Claude Opus 5 | 0.905 | +0.663 | 87% | 0 |
 | Grok 4.6 | 1.011 | +0.842 | 91% | 0 |
+| GPT-5.6 Sol | 1.137 | +0.821 | 85% | 0 |
+| GPT-6 Astra | 1.242 | +1.105 | 78% | 0 |
 | Claude Haiku 4.5 | 1.253 | +1.074 | 79% | 0 |
 | Gemma 4 31B | 1.326 | -1.295 | 68% | 0 |
 
@@ -42,7 +44,9 @@ _Gerado automaticamente; preços de 23/08/2026 (endpoint regional us-east-1). Ac
 | B: Grok 4.6 | 9.343 | 2758 | 15.317 | 5514 |
 | B: GPT-5.6 Terra | 11.790 | 587 | 19.328 | 6958 |
 | B: Claude Sonnet 5 | 12.128 | 588 | 19.883 | 7158 |
+| B: GPT-5.6 Sol (tarifa cheia: 39.833 / 23508/mês) | 28.688 | 1168 | 47.029 | 16931 |
 | B: Claude Opus 5 | 32.536 | 539 | 53.338 | 19202 |
+| B: GPT-6 Astra | 57.971 | 1246 | 95.034 | 34212 |
 | B3: Pegasus 1.2 (vídeo-nativo) | 1.076 | 299 | 1.764 | 635 |
 
 _Extrapolação: 12h de operação/dia × 30 dias = 360h de vídeo/mês por loja. Custo do Pipeline B a 0,5 fps; taxas maiores escalam ~linearmente. Pipeline A assume instância dedicada apenas durante o processamento (batch)._
@@ -66,10 +70,12 @@ _Extrapolação: 12h de operação/dia × 30 dias = 360h de vídeo/mês por loja
 
 | abordagem | MAE | viés | IC95% do MAE |
 |---|---|---|---|
+| B: GPT-6 Astra | 0.440 | +0.093 | [0.340, 0.547] |
 | B: Grok 4.6 | 0.487 | -0.087 | [0.387, 0.587] |
 | B: Qwen3-VL-8B self-hosted | 0.500 | -0.020 | [0.400, 0.600] |
 | B: GPT-5.6 Luna | 0.620 | -0.420 | [0.513, 0.733] |
 | B: Claude Sonnet 5 | 0.655 | -0.338 | [0.532, 0.784] |
+| B: GPT-5.6 Sol | 0.660 | -0.073 | [0.540, 0.793] |
 | B: Claude Opus 5 | 0.667 | -0.200 | [0.553, 0.787] |
 | B: GPT-5.6 Terra | 0.707 | -0.320 | [0.600, 0.820] |
 | A: bytetrack (E0) | 0.800 | -0.280 | [0.687, 0.920] |

@@ -62,6 +62,8 @@ B_RUNS = {
     "B: Gemma 4 31B": D / "b2ext/b2_out/main_gemma-4-31b/frames.jsonl",
     "B: Grok 4.6": D / "b2ext/b2_out/main_6/frames.jsonl",
     "B: Qwen3-VL-8B self-hosted": D / "qwen/qwen_out/main/frames.jsonl",
+    "B: GPT-5.6 Sol": D / "b2ext2/b2_out/main_6-sol/frames.jsonl",
+    "B: GPT-6 Astra": D / "b2ext2/b2_out/main_gpt-6-astra/frames.jsonl",
 }
 for name, path in B_RUNS.items():
     if not path.exists():

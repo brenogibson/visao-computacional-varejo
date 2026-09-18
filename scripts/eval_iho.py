@@ -140,6 +140,8 @@ RUNS = {
     "Gemma 4 31B": D / "b2ext/b2_out/ref_gemma-4-31b/frames.jsonl",
     "Grok 4.6": D / "b2ext/b2_out/ref_6/frames.jsonl",
     "Qwen3-VL-8B self-hosted": D / "qwen/qwen_out/ref/frames.jsonl",
+    "GPT-5.6 Sol": D / "b2ext2/b2_out/ref_6-sol/frames.jsonl",
+    "GPT-6 Astra": D / "b2ext2/b2_out/ref_gpt-6-astra/frames.jsonl",
 }
 
 print(f"Gabarito BORIS: {len(gt_points)} points, {sum(len(v) for v in gt_states.values())} estados")
