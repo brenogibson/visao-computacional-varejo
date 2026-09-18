@@ -25,6 +25,13 @@ PRICE_MTOK = {  # (input, output) US$/1M tokens
     "google.gemma-4-26b-a4b": (0.13, 0.40),
     "google.gemma-4-31b": (0.14, 0.40),
     "us.xai.grok-4.6": (2.20, 6.60),
+    "openai.gpt-5.6-sol": (4.40, 22.00),      # PROMO in-region (≥21/11/2026); cheio 5.50/33.00
+    "us.openai.gpt-6-astra": (11.00, 55.00),  # in-region/Geo; sem promoção (lançado 08/09/2026)
+}
+# tarifa cheia (pós-promoção) para reportar as duas colunas de custo
+PRICE_FULL_MTOK = {
+    "openai.gpt-5.6-sol": (5.50, 33.00),
+    "anthropic.claude-sonnet-5": (2.20, 11.00),  # promo virou permanente em 10/08/2026 — igual
 }
 GPU_HOUR = {"g6.xlarge": 0.8048, "g6.2xlarge": 0.9776}
 PEGASUS_SEC = 0.00049
@@ -65,7 +72,7 @@ def main() -> None:
 
     # ------- Pipeline B: junta avaliações do ref e summaries -------
     rows_b = []
-    for d in ["b2", "b2ext", "qwen"]:
+    for d in ["b2", "b2ext", "b2ext2", "qwen"]:
         for r in load_eval(D / d / "b1_eval.json"):
             if not str(r["run"]).startswith(("ref", "qwen_out/ref")) and r.get("fps") and "ref" not in r["run"]:
                 continue
@@ -76,15 +83,20 @@ def main() -> None:
             rows_b.append({**r, "occ_err_pct": 100 * occ_err / tot_gt_occ})
     # custos do run MAIN por modelo (summaries)
     main_cost = {}
-    for d, f in [("b2", "b2_summaries.json"), ("b2ext", "b2_summaries.json")]:
+    for d, f in [("b2", "b2_summaries.json"), ("b2ext", "b2_summaries.json"), ("b2ext2", "b2_summaries.json")]:
         p = D / d / f
         if not p.exists():
             # summaries ficam no S3; usar os baixados se existirem
             continue
         for s in json.load(open(p)):
             if s.get("video_key") == "main" and "fatal_error" not in s:
+                full = None
+                if s["model_id"] in PRICE_FULL_MTOK:
+                    pi, po = PRICE_FULL_MTOK[s["model_id"]]
+                    full = s["input_tokens"] / 1e6 * pi + s["output_tokens"] / 1e6 * po
                 main_cost[s["model_id"]] = {
                     "cost": model_run_cost(s["model_id"], s["input_tokens"], s["output_tokens"]),
+                    "cost_full": full,
                     "wall_s": s["wall_total_s"], "fail": s["n_failures"]}
     qs = D / "qwen" / "qwen_summaries.json"
     if qs.exists():
@@ -128,7 +140,8 @@ def main() -> None:
         return {"ref_claude-haiku-4-5": "Claude Haiku 4.5", "ref_claude-sonnet-5": "Claude Sonnet 5",
                 "ref_claude-opus-5": "Claude Opus 5", "ref_6-luna": "GPT-5.6 Luna",
                 "ref_6-terra": "GPT-5.6 Terra", "ref_gemma-4-26b-a4b": "Gemma 4 26B-A4B",
-                "ref_gemma-4-31b": "Gemma 4 31B", "ref_6": "Grok 4.6", "ref": "Qwen3-VL-8B (self-hosted)"}.get(run, run)
+                "ref_gemma-4-31b": "Gemma 4 31B", "ref_6": "Grok 4.6", "ref": "Qwen3-VL-8B (self-hosted)",
+                "ref_6-sol": "GPT-5.6 Sol", "ref_gpt-6-astra": "GPT-6 Astra"}.get(run, run)
     for r in sorted(rows_b, key=lambda r: r["mae"]):
         L.append(f"| {label(r)} | {r['mae']:.3f} | {r['bias']:+.3f} | {r['occ_err_pct']:.0f}% | {r['failures']} |")
 
@@ -148,10 +161,15 @@ def main() -> None:
                 "anthropic.claude-opus-5": "B: Claude Opus 5", "openai.gpt-5.6-luna": "B: GPT-5.6 Luna",
                 "openai.gpt-5.6-terra": "B: GPT-5.6 Terra", "google.gemma-4-26b-a4b": "B: Gemma 4 26B-A4B",
                 "google.gemma-4-31b": "B: Gemma 4 31B", "us.xai.grok-4.6": "B: Grok 4.6",
-                "local/Qwen3-VL-8B-FP8": "B: Qwen3-VL-8B self-hosted (GPU)"}
+                "local/Qwen3-VL-8B-FP8": "B: Qwen3-VL-8B self-hosted (GPU)",
+                "openai.gpt-5.6-sol": "B: GPT-5.6 Sol", "us.openai.gpt-6-astra": "B: GPT-6 Astra"}
     for mid, c in sorted(main_cost.items(), key=lambda kv: kv[1]["cost"]):
         per_h = c["cost"] / (MAIN_VIDEO_MIN / 60)
-        L.append(f"| {name_map.get(mid, mid)} | {c['cost']:.3f} | {c['wall_s']:.0f} | {per_h:.3f} | {per_h*MONTH_HOURS:.0f} |")
+        extra = ""
+        if c.get("cost_full") and abs(c["cost_full"] - c["cost"]) > 1e-6:
+            ph_full = c["cost_full"] / (MAIN_VIDEO_MIN / 60)
+            extra = f" (tarifa cheia: {c['cost_full']:.3f} / {ph_full*MONTH_HOURS:.0f}/mês)"
+        L.append(f"| {name_map.get(mid, mid)}{extra} | {c['cost']:.3f} | {c['wall_s']:.0f} | {per_h:.3f} | {per_h*MONTH_HOURS:.0f} |")
     if pegasus_cost:
         per_h = pegasus_cost["cost"] / (MAIN_VIDEO_MIN / 60)
         L.append(f"| B3: Pegasus 1.2 (vídeo-nativo) | {pegasus_cost['cost']:.3f} | {pegasus_cost['wall_s']:.0f} | {per_h:.3f} | {per_h*MONTH_HOURS:.0f} |")
