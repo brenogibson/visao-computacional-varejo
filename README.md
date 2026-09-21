@@ -8,4 +8,4 @@ para métricas comportamentais de varejo. Ver `/mnt/c/Users/breno/TCC2/PLANO_EXE
 - `src/retailcv/runlog.py` — registro de execução (reprodutibilidade)
 - `scripts/pilot_*.py` — pilotos do mantle (validados 26/07/2026, ver docs/RESULTADOS_PILOTO.md)
 
-Perfil AWS: `automations` (us-east-1). Vídeos: `s3://video-analytics-store`.
+Execução: AWS us-east-1 (EC2 GPU efêmeras + Amazon Bedrock). Os vídeos de CFTV e as anotações contendo imagens de pessoas NÃO são distribuídos (LGPD); apenas artefatos derivados sem imagens (métricas, saídas MOT, zonas) são reproduzíveis a partir do código.

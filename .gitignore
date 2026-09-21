@@ -6,3 +6,8 @@ data/
 runs/
 *.mp4
 *.jpg
+eval-env/venv/
+.venv*/
+*.png
+!docs/zonas_*_poligonos.png
+*.csv
